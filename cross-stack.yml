@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Creating A Template that deploys an EC2 instance while using  another stack
+Mappings: 
+  RegionMap: 
+    us-east-1: 
+      HVM64: "ami-022e1a32d3f742bd8"
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large.
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large.
+
+  SampleTemplatefromInstructor1:
+    Type: String
+    Default: TemplateFromInstructor
+    Description: This is to reference the base template
+
+Resources:
+  myEC2Instance: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: !FindInMap [ RegionMap, us-east-1, HVM64 ]
+      NetworkInterfaces:
+        - GroupSet:
+            - Fn::ImportValue: 
+                !Sub "${SampleTemplatefromInstructor1}-SecurityGroupID"
+          AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: 
+            Fn::ImportValue: !Sub "${SampleTemplatefromInstructor1}-SubnetID"
+# To this point the Ec2 was luanched
+      Tags: 
+      - Key: "Name"
+        Value: "Cross-stack-Ec2"
+      
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -ysu
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "
+          <html>
+          <head>
+          <title>AWS CloudFormation</title>
+          </head>
+          <body bgcolor=#f1f1f1 text=Purple>
+          <h1>Trust The Process!</h1>
+          </body>
+          </html>
+          " > /var/www/html/index.html    

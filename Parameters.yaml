@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: "2010-09-09" 
+Description: >
+ "Yollan second ec2 instance"
+Resources:
+ MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+        ImageId: "ami-09988af04120b3591"
+        Tags:
+        - Key: "Name"
+          Value: "YollanKEC2"
+          # Trust The Process
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.

@@ -1,0 +1,6 @@
+---
+Resources:
+  MyEC2Instance:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "yollan-trusting-the-process.2023"
