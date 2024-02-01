@@ -1,0 +1,13 @@
+Resources:
+  MyEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: "ami-0ff8a91507f77f867"
+      IamInstanceProfile: 
+# either of those two can allow you to import value from template IntanceProfile. 
+        # Fn::ImportValue: 
+        #   "test1234IP-RootInstanceProfile"
+
+        Fn::ImportValue: 
+          !Sub "test1234IP-RootInstanceProfile"
+        

@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: > 
+# my insttance
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-05e411cf591b5c9f6 # AMI ID
+      InstanceType: t2.micro
+
+      UserData:
+        Fn::Base64: 
+            !Sub |
+              #!/bin/bash
+              yum update -y
+              yum install -y httpd
+              systemctl start httpd
+              systemctl enable httpd
+              echo "<html><body><h1>Welcome to DevOps Hackathon ${AWS::Region}<h1></body></html>" > /var/www/html/index.html
+
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      Tags: 
+        - Key: "Name"
+          Value: "myEC2Instance"
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:  
+      GroupDescription: Enable http via port 80
+      SecurityGroupIngress:
+         - IpProtocol: tcp
+           FromPort: 80
+           ToPort: 80
+           CidrIp: 0.0.0.0/0
+ 
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+      - Key: Name
+        Value: vpc from cloudforamtion
+        
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: "us-east-1a"
+      Tags:
+      - Key: Name
+        Value: subnet from cloudformation
+        # add this part
+
+Parameters: 
+  myKeyPair: 
+    Description: Amazon EC2 Key Pair
+    Type: "AWS::EC2::KeyPair::KeyName"
+  mySubnetIDs: 
+    Description: Subnet IDs
+    Type: AWS::EC2::Subnet::Id
+
+  

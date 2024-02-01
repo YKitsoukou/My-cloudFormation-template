@@ -1,0 +1,71 @@
+BasetemplatefromInstructor:
+  Type: string
+  Default: "SampleNetworkCrossStack"
+  Description: "This is to reference the Stack-A template"
+Resources:
+  WebServerInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: !Ref "InstanceTypeParameter"
+      ImageId: [RegionsMap, us-east-1, linux]
+      NetworkInterfaces:
+        - GroupSet:
+            - Fn::ImportValue: 
+              'Fn::Sub': '${stackA}-SecurityGroupID'
+          AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: 
+            Fn::ImportValue: !Sub "${stackA}-SubnetID"
+    Tags:
+      - Key: "Name"
+        Value: "myEC2Instance"
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+Mappings: 
+  RegionsMap: 
+    us-east-1: 
+      linux: "ami-04a0ae173da5807d3"
+      ubuntu: "ami-053b0d53c279acc90"
+    us-west-2: 
+      linux: "ami-080f7286ffdf988ee"
+      ubuntu: "ami-03f65b8614a860c29"
+UserData:
+  Fn::Base64: !Sub |
+   #!/bin/bash
+   yum update -ysu
+   yum install -y httpd.x86_64
+   systemctl start httpd.service
+   systemctl enable httpd.service
+   echo "
+   <html>
+   <head>
+   <title>AWS CloudFormation</title>
+   </head>
+   <body bgcolor=#f1f1f1 text=Purple>
+   <h1>AWS Trust The Process!</h1>
+   </body>
+   </html>
+   " > /var/www/html/index.html     
+
+
+  myEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref myEC2Instance
+
+
+Outputs:
+  MyEC2PrivateIP:
+    Description: To return the IP address of my EC2
+    Value: !GetAtt myEC2Instance.PublicIp
+  MyEC2DNSName:
+    Description: To return the DNS name of my EC2
+    Value: !GetAtt myEC2Instance.PublicDnsName

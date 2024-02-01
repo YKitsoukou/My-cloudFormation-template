@@ -1,0 +1,21 @@
+Mappings: 
+  RegionsMap: 
+    us-east-1: 
+      linux: "ami-04a0ae173da5807d3"
+      ubuntu: "ami-053b0d53c279acc90"
+    us-west-2: 
+      linux: "ami-080f7286ffdf988ee"
+      ubuntu: "ami-03f65b8614a860c29"
+Resources: 
+  myEC2Instance: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: !FindInMap [RegionsMap, "us-east-1", ubuntu]
+      InstanceType: t2.micro
+      Tags: 
+      - Key: "Name"
+        Value: "mappingEc2"
+      - Key: "Yollan"
+        Value: "k"
+
+      # Trust The Process
